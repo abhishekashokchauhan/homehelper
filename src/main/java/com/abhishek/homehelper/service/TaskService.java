@@ -1,6 +1,7 @@
 package com.abhishek.homehelper.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +29,20 @@ public class TaskService {
 		return repository.findById(taskId).get();
 	}
 
-	public Task updateTask(Task task) {
-		Task existingTask = repository.findById(task.getTaskId()).get();
-		existingTask.setTitle(task.getTitle());
-		existingTask.setCompleted(task.isCompleted());
-		return repository.save(existingTask);
+	public Task updateTask(String taskId,Task task) {
+		Optional<Task> existingTask = repository.findById(taskId);
+		
+		
+		if(existingTask.isPresent()) {
+			Task existing = existingTask.get();
+			existing.setTitle(task.getTitle());
+			existing.setCompleted(task.isCompleted());
+			repository.save(existing);
+			return existing;
+			
+		}
+		
+		throw new RuntimeException("Could not find the resource with the ID : "+ taskId);
 	}
 
 	public String deleteTask(String taskId) {
